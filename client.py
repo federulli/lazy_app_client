@@ -36,6 +36,95 @@ class Client:
             {'show_id': tv_show_id, 'number': season_number}
         )
 
-cli = Client('192.168.99.100', 5000)
-tv_show = cli.add_tv_show("arrow")
-print (cli.add_season(1, 1))
+    def add_movie(self, name, year=None):
+        mutation = gql("""
+            mutation CreateMovie($name: String! $year: Int){
+                createMovie(name:$name, year: $year){
+                    movie{name}
+                }
+            }
+        """)
+        return self._client.execute(
+            mutation,
+            {'name': name, 'year': year}
+        )
+
+    def search_movies(self):
+        mutation = gql("""
+            mutation {
+                searchMovies{
+                    msg
+                }
+            }
+        """)
+        return self._client.execute(mutation)
+
+    def search_chapters(self):
+        mutation = gql("""
+            mutation {
+                searchChapters{
+                    msg
+                }
+            }
+        """)
+        return self._client.execute(mutation)
+
+    def delete_completed_torrents(self):
+        mutation = gql("""
+            mutation {
+                deleteCompleted{
+                    msg
+                }
+            }
+        """)
+        return self._client.execute(mutation)
+
+    def delete_all_torrents(self):
+        mutation = gql("""
+            mutation {
+                deleteAllTorrents{
+                    msg
+                }
+            }
+        """)
+        return self._client.execute(mutation)
+
+    def reload_chapter_count(self):
+        mutation = gql("""
+            mutation {
+                reloadChapterCount{
+                    msg
+                }
+            }
+        """)
+        return self._client.execute(mutation)
+
+    def get_tv_shows(self, id=None):
+        query = gql("""
+            query GetTvShows($show_id: ID) {
+              tvShows(id: $show_id) {
+                id
+                name
+                seasons {
+                  id
+                  number
+                  completed
+                  chapterCount
+                }
+              }
+            }
+        """)
+        return self._client.execute(query, {"show_id": id})
+
+    def get_movies(self, id=None):
+        query = gql("""
+            query GetMovies($movie_id: ID) {
+                  movies(id: $movie_id) {
+                    id
+                    name
+                    year
+                    torrent{id magnet downloadPath}
+                  }
+                }
+        """)
+        return self._client.execute(query, {"movie_id": id})

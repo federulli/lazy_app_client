@@ -1,2 +1,1 @@
 gql
-py-graphql-client
